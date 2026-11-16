@@ -1,0 +1,33 @@
+name: Daily Medical News Auto-Updater
+
+on:
+  schedule:
+    # Runs every day at 00:30 UTC (6:00 AM IST)
+    - cron: '30 0 * * *'
+  workflow_dispatch: # Lets you trigger it manually with 1 tap anytime
+
+permissions:
+  contents: write
+
+jobs:
+  update-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Fetch latest medical news feeds
+        run: python fetch_news.py
+
+      - name: Commit and push updated news.json
+        run: |
+          git config --global user.name "MedBloom AutoBot"
+          git config --global user.email "actions@github.com"
+          git add news.json
+          git diff --staged --quiet || git commit -m "Automated daily medical news update"
+          git push
