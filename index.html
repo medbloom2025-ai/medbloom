@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedPulse Clinical | Medical News & Disease Reference Portal</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Plus Jakarta Sans & Merriweather for editorial readability -->
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'sans-serif'],
+            serif: ['Merriweather', 'serif'],
+          },
+          colors: {
+            clinical: {
+              50: '#f0fdfa',
+              100: '#ccfbf1',
+              500: '#14b8a6',
+              600: '#0d9488',
+              700: '#0f766e',
+              900: '#134e4a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Custom scrollbar and subtle transitions */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .modal-backdrop { background-color: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-clinical-600 selection:text-white">
+
+  <!-- Top Emergency & Verification Bar -->
+  <div class="bg-slate-900 text-slate-300 text-xs py-2 px-4 border-b border-slate-800">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+      <div class="flex items-center gap-2">
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span><strong>Evidence-Based Portal:</strong> All monographs reviewed against standard clinical guidelines (WHO / ICMR / ICD-11).</span>
+      </div>
+      <div class="flex items-center gap-4 text-slate-400">
+        <span>Emergency Helpline: <strong class="text-rose-400">112 / 108</strong></span>
+        <span>•</span>
+        <span id="currentDateDisplay">Updated Daily</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Sticky Navigation -->
+  <header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-clinical-600 flex items-center justify-center text-white font-bold text-xl shadow-md shadow-clinical-600/20 group-hover:bg-clinical-700 transition">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
+        </div>
+        <div>
+          <span class="text-xl font-extrabold tracking-tight text-slate-900">Med<span class="text-clinical-600">Pulse</span></span>
+          <span class="block text-[10px] font-semibold uppercase tracking-widest text-slate-400 -mt-1">Clinical & Health Reference</span>
+        </div>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-600">
+        <a href="#diseases-section" class="hover:text-clinical-600 transition">Disease Directory</a>
+        <a href="#news-section" class="hover:text-clinical-600 transition">Medical News</a>
+        <a href="#symptom-triage" class="hover:text-clinical-600 transition">Red-Flag Triage</a>
+        <a href="#prevention-tools" class="hover:text-clinical-600 transition">Clinical Calculators</a>
+      </nav>
+
+      <!-- Reading Mode Toggle (Patient vs Clinical) -->
+      <div class="flex items-center gap-3">
+        <div class="bg-slate-100 p-1 rounded-lg flex items-center text-xs font-semibold border border-slate-200">
+          <button id="modePatientBtn" onclick="setReaderMode('patient')" class="px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition">
+            Patient View
+          </button>
+          <button id="modeClinicalBtn" onclick="setReaderMode('clinical')" class="px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition">
+            Clinical View
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section with Global Search -->
+  <section class="relative bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white py-16 lg:py-20 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="max-w-3xl mx-auto text-center">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-clinical-500/10 text-clinical-400 border border-clinical-500/20 mb-4">
+          Peer-Reviewed Structure • Public Health & Clinical Updates
+        </span>
+        <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight mb-4">
+          Trusted Medical Knowledge, <span class="text-clinical-400">Clearly Explained.</span>
+        </h1>
+        <p class="text-slate-300 text-base sm:text-lg mb-8 leading-relaxed">
+          Search common diseases, pathophysiology, diagnostic criteria, and the latest clinical news. Switch seamlessly between patient-friendly summaries and clinical notes.
+        </p>
+
+        <!-- Search Bar -->
+        <div class="relative max-w-2xl mx-auto">
+          <div class="flex items-center bg-white rounded-2xl p-2 shadow-2xl shadow-black/40 border border-slate-700/50">
+            <svg class="w-6 h-6 text-slate-400 ml-3 mr-2 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <input 
+              id="globalSearchInput" 
+              type="text" 
+              placeholder="Search diseases, symptoms, or ICD codes (e.g., Dengue, Hypertension, Fever)..." 
+              class="w-full py-3 px-2 text-slate-900 placeholder-slate-400 focus:outline-none text-sm sm:text-base"
+            />
+            <button onclick="scrollToDirectory()" class="bg-clinical-600 hover:bg-clinical-700 text-white font-semibold px-6 py-3 rounded-xl text-sm transition shrink-0">
+              Search
+            </button>
+          </div>
+          <!-- Quick Search Tags -->
+          <div class="flex flex-wrap items-center justify-center gap-2 mt-4 text-xs text-slate-400">
+            <span>Common searches:</span>
+            <button onclick="quickFilter('Dengue')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 transition">Dengue Fever</button>
+            <button onclick="quickFilter('Diabetes')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 transition">Type 2 Diabetes</button>
+            <button onclick="quickFilter('Hypertension')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 transition">Hypertension</button>
+            <button onclick="quickFilter('Tuberculosis')" class="px-2.5 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-200 transition">Tuberculosis</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-20">
+
+    <!-- SECTION 1: COMMON DISEASES & CONDITIONS ENCYCLOPEDIA -->
+    <section id="diseases-section" class="scroll-mt-24">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-clinical-600">Clinical Reference Library</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Common Diseases & Conditions</h2>
+          <p class="text-slate-600 text-sm mt-1">Select any condition below to view symptoms, diagnostic workup, and treatment protocols.</p>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div id="categoryPills" class="flex flex-wrap gap-2">
+          <button onclick="filterCategory('All')" data-cat="All" class="cat-btn active px-3.5 py-2 rounded-xl text-xs font-bold bg-clinical-600 text-white shadow-sm transition">All Conditions</button>
+          <button onclick="filterCategory('Infectious')" data-cat="Infectious" class="cat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-clinical-600 transition">Infectious</button>
+          <button onclick="filterCategory('Cardiovascular')" data-cat="Cardiovascular" class="cat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-clinical-600 transition">Cardiovascular</button>
+          <button onclick="filterCategory('Endocrine')" data-cat="Endocrine" class="cat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-clinical-600 transition">Endocrine</button>
+          <button onclick="filterCategory('Respiratory')" data-cat="Respiratory" class="cat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-clinical-600 transition">Respiratory</button>
+        </div>
+      </div>
+
+      <!-- Disease Cards Grid -->
+      <div id="diseaseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Populated dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- SECTION 2: MEDICAL NEWS & RESEARCH UPDATES -->
+    <section id="news-section" class="scroll-mt-24 pt-8 border-t border-slate-200">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-clinical-600">Evidence & Public Health Desk</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">Latest Medical News & Guidelines</h2>
+          <p class="text-slate-600 text-sm mt-1">Curated summaries of clinical trials, epidemiological alerts, and updated treatment guidelines.</p>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="filterNews('All')" class="news-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 text-white">All Updates</button>
+          <button onclick="filterNews('Public Health')" class="news-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300">Public Health</button>
+          <button onclick="filterNews('Clinical Guidelines')" class="news-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-200 text-slate-700 hover:bg-slate-300">Clinical Guidelines</button>
+        </div>
+      </div>
+
+      <div id="newsGrid" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Populated dynamically via JS -->
+      </div>
+    </section>
+
+    <!-- SECTION 3: RED-FLAG SYMPTOM TRIAGE & QUICK BMI/MAP CALCULATOR -->
+    <section id="symptom-triage" class="scroll-mt-24 grid grid-cols-1 lg:grid-cols-12 gap-8 pt-8 border-t border-slate-200">
+      
+      <!-- Red Flag Emergency Triage Box -->
+      <div class="lg:col-span-7 bg-rose-50/70 border border-rose-200 rounded-2xl p-6 sm:p-8">
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-rose-600 text-white flex items-center justify-center font-bold shrink-0">
+            !
+          </div>
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-rose-600">Acute Care Triage</span>
+            <h3 class="text-xl font-extrabold text-slate-900">When to Seek Immediate Emergency Care</h3>
+          </div>
+        </div>
+        <p class="text-sm text-slate-600 mb-6">
+          Do not wait for an outpatient appointment if a patient presents with any of the following warning signs. Proceed immediately to an emergency department:
+        </p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+          <div class="bg-white p-4 rounded-xl border border-rose-100 shadow-sm">
+            <h4 class="font-bold text-slate-900 mb-1">Cardiopulmonary Red Flags</h4>
+            <ul class="text-slate-600 space-y-1 text-xs list-disc list-inside">
+              <li>Crushing retrosternal chest pain radiating to arm/jaw</li>
+              <li>Sudden dyspnea or SpO₂ &lt; 92% on room air</li>
+              <li>Unexplained syncope or severe palpitations</li>
+            </ul>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-rose-100 shadow-sm">
+            <h4 class="font-bold text-slate-900 mb-1">Neurological Red Flags (FAST)</h4>
+            <ul class="text-slate-600 space-y-1 text-xs list-disc list-inside">
+              <li>Sudden unilateral facial droop or limb weakness</li>
+              <li>Slurred speech (dysarthria) or aphasia</li>
+              <li>"Thunderclap" headache or neck rigidity</li>
+            </ul>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-rose-100 shadow-sm">
+            <h4 class="font-bold text-slate-900 mb-1">Infectious / Sepsis Warning Signs</h4>
+            <ul class="text-slate-600 space-y-1 text-xs list-disc list-inside">
+              <li>High-grade fever with petechial rash or bleeding</li>
+              <li>Persistent vomiting, severe abdominal pain, lethargy</li>
+              <li>Hypotension, cold clammy extremities, oliguria</li>
+            </ul>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-rose-100 shadow-sm">
+            <h4 class="font-bold text-slate-900 mb-1">Metabolic Emergencies</h4>
+            <ul class="text-slate-600 space-y-1 text-xs list-disc list-inside">
+              <li>Fruity breath odor, Kussmaul breathing (DKA)</li>
+              <li>Diaphoresis, confusion, tremors (Severe Hypoglycemia)</li>
+              <li>Acute anaphylaxis with stridor or angioedema</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Bedside Clinical Calculator (BMI & MAP) -->
+      <div id="prevention-tools" class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <span class="text-xs font-bold uppercase tracking-wider text-clinical-600">Quick Clinical Utility</span>
+        <h3 class="text-xl font-extrabold text-slate-900 mt-1 mb-2">BMI & Mean Arterial Pressure (MAP)</h3>
+        <p class="text-xs text-slate-500 mb-6">Instant bedside screening metrics for metabolic and hemodynamic assessment.</p>
+
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Weight (kg)</label>
+              <input id="calcWeight" type="number" placeholder="70" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-clinical-600">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Height (cm)</label>
+              <input id="calcHeight" type="number" placeholder="172" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-clinical-600">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Systolic BP (mmHg)</label>
+              <input id="calcSBP" type="number" placeholder="120" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-clinical-600">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-700 mb-1">Diastolic BP (mmHg)</label>
+              <input id="calcDBP" type="number" placeholder="80" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-clinical-600">
+            </div>
+          </div>
+
+          <button onclick="runClinicalCalc()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-xl text-sm transition">
+            Calculate Parameters
+          </button>
+
+          <!-- Output Box -->
+          <div id="calcOutput" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 text-xs space-y-2">
+            <div class="flex justify-between">
+              <span class="text-slate-500">Body Mass Index (BMI):</span>
+              <span id="bmiResult" class="font-bold text-slate-900">--</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Mean Arterial Pressure (MAP):</span>
+              <span id="mapResult" class="font-bold text-slate-900">--</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: DISEASE MONOGRAPH & NEWS READER -->
+  <div id="detailModal" class="fixed inset-0 z-50 hidden modal-backdrop flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-200 animate-fadeIn">
+      
+      <!-- Modal Sticky Header -->
+      <div class="sticky top-0 bg-white/95 backdrop-blur px-6 py-4 border-b border-slate-200 flex items-center justify-between z-10">
+        <div class="flex items-center gap-2">
+          <span id="modalBadge" class="px-2.5 py-1 rounded-md text-xs font-bold bg-clinical-50 text-clinical-700">Category</span>
+          <span id="modalCode" class="text-xs font-mono text-slate-400">ICD-11</span>
+        </div>
+        <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-600 font-bold">
+          ✕
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div id="modalContent" class="p-6 sm:p-8 space-y-6">
+        <!-- Dynamically populated -->
+      </div>
+
+      <!-- Modal Footer Disclaimer -->
+      <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-slate-500">
+        <span>For educational & clinical reference only. Always correlate clinically.</span>
+        <button onclick="closeModal()" class="px-4 py-2 bg-slate-900 text-white font-semibold rounded-lg hover:bg-slate-800">Close Window</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 py-12 border-t border-slate-800 mt-20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div class="md:col-span-2 space-y-3">
+          <div class="flex items-center gap-2 text-white font-extrabold text-lg">
+            <span class="w-3 h-3 rounded-full bg-clinical-500"></span>
+            MedPulse Clinical Portal
+          </div>
+          <p class="text-xs text-slate-400 max-w-md leading-relaxed">
+            An evidence-based medical information and disease reference platform designed for clarity, clinical accuracy, and public health awareness.
+          </p>
+        </div>
+        <div>
+          <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-3">Clinical Sections</h4>
+          <ul class="space-y-2 text-xs">
+            <li><a href="#diseases-section" class="hover:text-white">Disease A–Z Directory</a></li>
+            <li><a href="#news-section" class="hover:text-white">Medical News & Trials</a></li>
+            <li><a href="#symptom-triage" class="hover:text-white">Emergency Triage Protocol</a></li>
+            <li><a href="#prevention-tools" class="hover:text-white">Bedside Calculators</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white text-xs font-bold uppercase tracking-wider mb-3">Editorial Standards</h4>
+          <ul class="space-y-2 text-xs">
+            <li>ICD-11 Classification Aligned</li>
+            <li>Standard Treatment Guidelines</li>
+            <li>Dual Patient / Clinical Toggle</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pt-8 border-t border-slate-800 text-xs text-slate-500 flex flex-col sm:flex-row justify-between gap-4">
+        <p><strong>Medical Disclaimer:</strong> Content on MedPulse is provided for informational and educational purposes only and does not substitute professional medical advice, diagnosis, or treatment.</p>
+        <p class="shrink-0">© 2026 MedPulse Portal. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JAVASCRIPT DATA & APPLICATION LOGIC -->
+  <script>
+    // Global state for reader mode ('patient' vs 'clinical')
+    let currentReaderMode = 'patient';
+    let currentCategory = 'All';
+
+    // Structured Clinical Disease Database
+    const diseasesData = [
+      {
+        id: 'dengue',
+        name: 'Dengue Fever',
+        category: 'Infectious',
+        icd: 'ICD-11: 1D2Z',
+        severity: 'High Vigilance',
+        vectorOrCause: 'Flavivirus (DENV 1–4) via Aedes aegypti mosquito',
+        patientSummary: 'An acute mosquito-borne viral infection causing high fever, severe body aches, pain behind the eyes, and a drop in platelet count.',
+        clinicalSummary: 'Arboviral infection characterized by febrile, critical (plasma leakage/hemorrhagic), and convalescent phases. Requires strict hematocrit and platelet monitoring.',
+        symptoms: [
+          'Sudden high-grade fever (up to 104°F / 40°C)',
+          'Severe retro-orbital pain (pain behind the eyes) and frontal headache',
+          'Myalgia and arthralgia ("breakbone fever")',
+          'Maculopapular rash and positive tourniquet test',
+          'Warning signs: Persistent vomiting, mucosal bleeding, abdominal tenderness, lethargy'
+        ],
+        diagnostics: [
+          'Days 1–5: NS1 Antigen ELISA or RT-PCR',
+          'After Day 5: Dengue IgM / IgG MAC-ELISA',
+          'Complete Blood Count (CBC): Leukopenia, thrombocytopenia, and rising hematocrit (>20% rise indicates hemoconcentration/plasma leakage)'
+        ],
+        management: [
+          'Oral rehydration and paracetamol (acetaminophen) for fever/myalgia',
+          'Strictly AVOID NSAIDs (Ibuprofen, Aspirin, Diclofenac) due to hemorrhage risk',
+          'Isotonic IV crystalloids (0.9% NS or Ringer’s Lactate) titrated to hematocrit and urine output (0.5–1 mL/kg/hr) in critical phase',
+          'Prophylactic platelet transfusion is NOT indicated unless active bleeding or platelets <10,000/µL'
+        ]
+      },
+      {
+        id: 'hypertension',
+        name: 'Essential Hypertension',
+        category: 'Cardiovascular',
+        icd: 'ICD-11: BA00',
+        severity: 'Chronic Management',
+        vectorOrCause: 'Multifactorial (Vascular resistance, RAAS activation, high sodium)',
+        patientSummary: 'Persistently elevated blood pressure against arterial walls. Often symptomless ("silent killer"), but increases risk of heart attack, stroke, and kidney disease.',
+        clinicalSummary: 'Sustained clinic BP ≥140/90 mmHg (or ≥130/80 mmHg per ACC/AHA criteria) without identifiable secondary cause. Leads to target-organ damage (LVH, retinopathy, nephropathy).',
+        symptoms: [
+          'Usually asymptomatic in early and moderate stages',
+          'Early morning suboccipital headache or dizziness in severe elevations',
+          'Exertional dyspnea or epistaxis',
+          'Hypertensive crisis (>180/120 mmHg): Visual blurring, chest pain, neurological deficits'
+        ],
+        diagnostics: [
+          'At least two office BP readings on ≥2 separate occasions, or Ambulatory BP Monitoring (ABPM)',
+          'Baseline ECG (to evaluate Left Ventricular Hypertrophy)',
+          'Renal function panel (Serum Creatinine, eGFR, Electrolytes) & Urine Albumin-to-Creatinine Ratio (uACR)',
+          'Fasting lipid profile and HbA1c'
+        ],
+        management: [
+          'Lifestyle: DASH diet, sodium restriction (<2g/day), 150 mins/week aerobic exercise, weight reduction',
+          'First-line Pharmacotherapy: ACE Inhibitors (Enalapril, Ramipril), ARBs (Telmisartan, Losartan), Calcium Channel Blockers (Amlodipine), or Thiazide-like diuretics (Chlorthalidone)',
+          'Single-pill combination therapy recommended for baseline BP >150/90 mmHg'
+        ]
+      },
+      {
+        id: 'diabetes-t2',
+        name: 'Type 2 Diabetes Mellitus',
+        category: 'Endocrine',
+        icd: 'ICD-11: 5A11',
+        severity: 'Chronic Management',
+        vectorOrCause: 'Peripheral insulin resistance & progressive beta-cell dysfunction',
+        patientSummary: 'A chronic metabolic disorder where the body cannot effectively use insulin, resulting in high blood sugar levels that affect nerves, eyes, kidneys, and blood vessels.',
+        clinicalSummary: 'Non-insulin-dependent hyperglycemia driven by insulin resistance in skeletal muscle/liver and impaired incretin effect, requiring glycemic and cardiorenal risk reduction.',
+        symptoms: [
+          'Classic triad: Polyuria (frequent urination), Polydipsia (excessive thirst), Polyphagia',
+          'Unexplained weight loss and chronic fatigue',
+          'Recurrent fungal/cutaneous infections and delayed wound healing',
+          'Distal symmetric peripheral neuropathy (tingling/numbness in feet)'
+        ],
+        diagnostics: [
+          'HbA1c ≥ 6.5% (reflects 3-month glycemic average)',
+          'Fasting Plasma Glucose (FPG) ≥ 126 mg/dL (7.0 mmol/L)',
+          '2-Hour Oral Glucose Tolerance Test (OGTT) ≥ 200 mg/dL',
+          'Annual screening: Dilated fundus exam, foot monofilament test, and urine microalbumin'
+        ],
+        management: [
+          'Medical Nutrition Therapy (low glycemic index, high fiber) and resistance + aerobic exercise',
+          'First-line agent: Metformin (unless contraindicated by eGFR < 30 mL/min)',
+          'SGLT2 Inhibitors (Empagliflozin, Dapagliflozin) or GLP-1 RAs (Semaglutide) prioritized in patients with ASCVD, Heart Failure, or CKD',
+          'Target HbA1c < 7.0% for most non-pregnant adults'
+        ]
+      },
+      {
+        id: 'tuberculosis',
+        name: 'Pulmonary Tuberculosis',
+        category: 'Infectious',
+        icd: 'ICD-11: 1B10',
+        severity: 'Notifiable Disease',
+        vectorOrCause: 'Mycobacterium tuberculosis (Airborne droplet transmission)',
+        patientSummary: 'A contagious bacterial lung infection spread through cough droplets. Presents with a persistent cough lasting over two weeks, night sweats, fever, and weight loss.',
+        clinicalSummary: 'Granulomatous necrotizing infection primarily affecting upper lung lobes. Managed via NTEP/WHO standard multi-drug fixed-dose combination regimens.',
+        symptoms: [
+          'Productive cough lasting >2 weeks (with or without hemoptysis)',
+          'Evening rise of temperature and drenching night sweats',
+          'Significant unintentional weight loss and anorexia',
+          'Pleuritic chest pain and fatigue'
+        ],
+        diagnostics: [
+          'CBNAAT / GeneXpert MTB/RIF (rapid molecular detection + Rifampicin resistance)',
+          'Sputum smear microscopy for Acid-Fast Bacilli (Ziehl-Neelsen / Auramine stain)',
+          'Chest X-Ray: Upper lobe cavitary lesions, patchy infiltrates, or hilar lymphadenopathy',
+          'Liquid culture (MGIT) gold standard for drug susceptibility testing'
+        ],
+        management: [
+          'Intensive Phase (2 Months): Isoniazid (H), Rifampicin (R), Pyrazinamide (Z), Ethambutol (E) — 2HRZE',
+          'Continuation Phase (4 Months): Isoniazid (H), Rifampicin (R), Ethambutol (E) — 4HRE',
+          'Pyridoxine (Vitamin B6) supplementation (10–50 mg/day) to prevent Isoniazid-induced peripheral neuropathy',
+          'Baseline and periodic Liver Function Tests (LFTs) to monitor hepatotoxicity'
+        ]
+      },
+      {
+        id: 'asthma',
+        name: 'Bronchial Asthma',
+        category: 'Respiratory',
+        icd: 'ICD-11: CA23',
+        severity: 'Episodic / Chronic',
+        vectorOrCause: 'Type 2 airway inflammation, bronchial hyperresponsiveness',
+        patientSummary: 'A condition where airways narrow, swell, and produce extra mucus in response to triggers like dust, cold air, or exercise, causing wheezing and shortness of breath.',
+        clinicalSummary: 'Heterogeneous chronic airway inflammation characterized by reversible expiratory airflow limitation. GINA guidelines emphasize ICS-formoterol controller/reliever therapy.',
+        symptoms: [
+          'Episodic wheezing (high-pitched expiratory whistling)',
+          'Shortness of breath (dyspnea) and chest tightness',
+          'Dry cough, characteristically worse at night or early morning',
+          'Symptoms triggered by allergens, viral URI, exercise, or cold air'
+        ],
+        diagnostics: [
+          'Spirometry: Reduced FEV1/FVC ratio (<0.75–0.80) with positive bronchodilator reversibility (FEV1 increase ≥12% and ≥200 mL post-salbutamol)',
+          'Peak Expiratory Flow (PEF) diurnal variability >10% in adults',
+          'Fractional Exhaled Nitric Oxide (FeNO) and absolute eosinophil count for phenotyping'
+        ],
+        management: [
+          'GINA Track 1 Preferred: Low-dose Inhaled Corticosteroid (ICS) + Formoterol (Budesonide-Formoterol) as needed for mild asthma, or as maintenance and reliever therapy (MART)',
+          'Avoid SABA-only (Salbutamol alone) monotherapy to reduce severe exacerbation risk',
+          'Verify inhaler technique and spacer usage at every clinical visit',
+          'Acute Severe Exacerbation: High-flow O₂, back-to-back nebulized SABA + Ipratropium, and systemic corticosteroids'
+        ]
+      },
+      {
+        id: 'hypothyroidism',
+        name: 'Primary Hypothyroidism',
+        category: 'Endocrine',
+        icd: 'ICD-11: 5A00',
+        severity: 'Chronic Management',
+        vectorOrCause: 'Autoimmune thyroiditis (Hashimoto’s) or iodine deficiency',
+        patientSummary: 'An underactive thyroid gland that does not produce enough thyroid hormone, slowing down the body’s metabolism and causing fatigue, weight gain, and cold intolerance.',
+        clinicalSummary: 'Deficient thyroid hormone synthesis at the glandular level resulting in elevated serum TSH and low free T4. Requires weight-based levothyroxine replacement.',
+        symptoms: [
+          'Fatigue, lethargy, and cold intolerance',
+          'Modest weight gain and chronic constipation',
+          'Dry, coarse skin, hair thinning, and non-pitting periorbital edema',
+          'Bradycardia, menorrhagia in women, and delayed deep tendon reflexes'
+        ],
+        diagnostics: [
+          'Primary Screening: Elevated Serum TSH with low Free T4 (Overt Hypothyroidism)',
+          'Subclinical Hypothyroidism: Elevated TSH (typically 4.5–10 mIU/L) with normal Free T4',
+          'Anti-TPO (Thyroid Peroxidase) antibodies to confirm autoimmune Hashimoto’s thyroiditis'
+        ],
+        management: [
+          'Oral Levothyroxine (L-T4) ~1.6 mcg/kg/day taken on an empty stomach 30–60 minutes before breakfast',
+          'Start at lower doses (25–50 mcg/day) in elderly patients or those with ischemic heart disease',
+          'Recheck serum TSH 6–8 weeks after dose initiation or adjustment',
+          'Separate administration by 4 hours from calcium, iron supplements, or proton pump inhibitors'
+        ]
+      }
+    ];
+
+    // Curated Medical News & Guidelines Data
+    const newsData = [
+      {
+        id: 'news-1',
+        tag: 'Clinical Guidelines',
+        date: 'Nov 2026',
+        readTime: '4 min read',
+        title: 'Updated Consensus on Arboviral Fever Management & Fluid Titration Protocols',
+        summary: 'New clinical guidance emphasizes early hematocrit tracking over routine prophylactic platelet transfusions in moderate-to-severe dengue cases.',
+        fullText: `
+          <p class="mb-4">Recent multi-center clinical audits have reinforced that mortality and complications in seasonal dengue outbreaks are primarily driven by unrecognized plasma leakage and fluid overload rather than isolated thrombocytopenia.</p>
+          <h4 class="font-bold text-slate-900 mt-4 mb-2">Key Practice Takeaways:</h4>
+          <ul class="list-disc list-inside space-y-2 text-slate-700 mb-4">
+            <li><strong>Baseline Hematocrit:</strong> Obtain a baseline PCV/Hematocrit during the febrile phase (Days 1–3) to accurately detect a ≥20% surge at defervescence.</li>
+            <li><strong>Judicious Fluid Therapy:</strong> Restrict isotropic crystalloid boluses to patients exhibiting compensated or decompensated shock, tapering rates as soon as hemodynamic stability and urine output (0.5 mL/kg/hr) are achieved.</li>
+            <li><strong>Transfusion Thresholds:</strong> Prophylactic platelet transfusion in stable patients without active mucosal bleeding and platelet counts above 10,000/µL confers no clinical benefit and increases fluid overload risk.</li>
+          </ul>
+        `
+      },
+      {
+        id: 'news-2',
+        tag: 'Public Health',
+        date: 'Nov 2026',
+        readTime: '3 min read',
+        title: 'Cardio-Renal-Metabolic Screening: Lowering the Age Threshold for Routine Risk Profiling',
+        summary: 'Epidemiological data across South Asia supports initiating annual blood pressure, HbA1c, and lipid screening starting at age 25.',
+        fullText: `
+          <p class="mb-4">Population-level epidemiological surveys demonstrate an earlier onset of insulin resistance and atherogenic dyslipidemia in young adults compared to historical cohorts.</p>
+          <h4 class="font-bold text-slate-900 mt-4 mb-2">Recommended Screening Protocol:</h4>
+          <ul class="list-disc list-inside space-y-2 text-slate-700 mb-4">
+            <li><strong>Waist-to-Height Ratio:</strong> Utilize waist-to-height ratio (&lt;0.5 target) alongside BMI to capture central visceral adiposity.</li>
+            <li><strong>Early Glycemic Checks:</strong> Screen asymptomatic adults with BMI &ge;23 kg/m² using fasting glucose or HbA1c every 1–2 years.</li>
+            <li><strong>Renal Protection:</strong> Integrate annual urine albumin-to-creatinine ratio (uACR) testing in all newly diagnosed hypertensive and diabetic patients.</li>
+          </ul>
+        `
+      },
+      {
+        id: 'news-3',
+        tag: 'Clinical Guidelines',
+        date: 'Oct 2026',
+        readTime: '5 min read',
+        title: 'Antimicrobial Stewardship in Outpatient Respiratory Tract Infections',
+        summary: 'Practical clinical scoring tools (Centor and FeverPAIN) cut unnecessary macrolide and beta-lactam prescriptions by over 40% in primary care.',
+        fullText: `
+          <p class="mb-4">Acute upper respiratory tract infections remain the leading driver of inappropriate outpatient antibiotic use, accelerating community resistance rates in <em>S. pneumoniae</em> and <em>Enterobacteriaceae</em>.</p>
+          <h4 class="font-bold text-slate-900 mt-4 mb-2">Stewardship Checklist:</h4>
+          <ul class="list-disc list-inside space-y-2 text-slate-700 mb-4">
+            <li><strong>Viral vs Bacterial Differentiation:</strong> Presence of coryza, hoarseness, conjunctivitis, and cough strongly favors a viral etiology where antibiotics provide zero benefit.</li>
+            <li><strong>Modified Centor Score:</strong> Reserve empirical penicillin/amoxicillin therapy for patients scoring &ge;3 points or confirmed via rapid strep antigen testing.</li>
+            <li><strong>Avoid Fixed-Dose Irrational Combinations:</strong> Discourage unindicated broad-spectrum combinations (e.g., Cefixime + Azithromycin) for uncomplicated community infections.</li>
+          </ul>
+        `
+      }
+    ];
+
+    // Render Disease Cards
+    function renderDiseases(searchQuery = '') {
+      const grid = document.getElementById('diseaseGrid');
+      const query = searchQuery.toLowerCase().trim();
+
+      const filtered = diseasesData.filter(d => {
+        const matchesCat = currentCategory === 'All' || d.category === currentCategory;
+        const matchesSearch = !query || 
+          d.name.toLowerCase().includes(query) ||
+          d.category.toLowerCase().includes(query) ||
+          d.icd.toLowerCase().includes(query) ||
+          d.patientSummary.toLowerCase().includes(query) ||
+          d.clinicalSummary.toLowerCase().includes(query) ||
+          d.symptoms.some(s => s.toLowerCase().includes(query));
+        return matchesCat && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full bg-white border border-slate-200 rounded-2xl p-12 text-center">
+            <p class="text-slate-800 font-bold text-lg mb-1">No matching clinical conditions found</p>
+            <p class="text-slate-500 text-sm mb-4">Try searching for a broader symptom or reset the specialty filter.</p>
+            <button onclick="resetDirectory()" class="px-4 py-2 bg-clinical-600 text-white text-xs font-bold rounded-lg">Reset Filters</button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(d => {
+        const summaryText = currentReaderMode === 'patient' ? d.patientSummary : d.clinicalSummary;
+        return `
+          <article onclick="openDiseaseModal('${d.id}')" class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-clinical-500 transition cursor-pointer flex flex-col justify-between group">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <span class="px-2.5 py-1 rounded-md text-xs font-bold bg-clinical-50 text-clinical-700">${d.category}</span>
+                <span class="text-xs font-mono text-slate-400">${d.icd}</span>
+              </div>
+              <h3 class="text-xl font-extrabold text-slate-900 group-hover:text-clinical-600 transition mb-2">${d.name}</h3>
+              <p class="text-xs font-medium text-slate-400 mb-3">${d.vectorOrCause}</p>
+              <p class="text-sm text-slate-600 leading-relaxed mb-4">${summaryText}</p>
+            </div>
+            <div>
+              <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span class="font-semibold text-slate-500">Key Symptoms: <strong class="text-slate-700">${d.symptoms.length} listed</strong></span>
+                <span class="font-bold text-clinical-600 group-hover:translate-x-1 transition inline-flex items-center gap-1">
+                  Full Monograph →
+                </span>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    // Render News Cards
+    function renderNews(filterTag = 'All') {
+      const grid = document.getElementById('newsGrid');
+      const filtered = filterTag === 'All' ? newsData : newsData.filter(n => n.tag === filterTag);
+
+      grid.innerHTML = filtered.map(n => `
+        <article onclick="openNewsModal('${n.id}')" class="bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-lg hover:border-slate-300 transition cursor-pointer flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between text-xs text-slate-400 mb-3">
+              <span class="font-bold text-clinical-600 uppercase tracking-wider">${n.tag}</span>
+              <span>${n.date} • ${n.readTime}</span>
+            </div>
+            <h3 class="text-lg font-extrabold text-slate-900 mb-3 leading-snug hover:text-clinical-600 transition">${n.title}</h3>
+            <p class="text-sm text-slate-600 leading-relaxed mb-4">${n.summary}</p>
+          </div>
+          <div class="pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-slate-900">
+            <span>Read Full Briefing</span>
+            <span class="text-clinical-600">→</span>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    // Open Disease Monograph Modal
+    function openDiseaseModal(id) {
+      const d = diseasesData.find(item => item.id === id);
+      if (!d) return;
+
+      document.getElementById('modalBadge').textContent = d.category;
+      document.getElementById('modalCode').textContent = d.icd;
+
+      const overviewText = currentReaderMode === 'patient' ? d.patientSummary : d.clinicalSummary;
+      const modeBadge = currentReaderMode === 'patient' ? 'Patient-Friendly Summary' : 'Clinical Monograph View';
+
+      document.getElementById('modalContent').innerHTML = `
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-clinical-600">${modeBadge}</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1">${d.name}</h2>
+          <p class="text-xs text-slate-500 mt-1"><strong>Etiology / Mechanism:</strong> ${d.vectorOrCause}</p>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm text-slate-700 leading-relaxed">
+          ${overviewText}
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <h4 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-2 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-clinical-600"></span> Clinical Presentation & Symptoms
+            </h4>
+            <ul class="space-y-1.5 text-sm text-slate-700 bg-white border border-slate-200 rounded-xl p-4 list-disc list-inside">
+              ${d.symptoms.map(s => `<li>${s}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-2 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-blue-600"></span> Diagnostic Workup & Investigations
+            </h4>
+            <ul class="space-y-1.5 text-sm text-slate-700 bg-white border border-slate-200 rounded-xl p-4 list-disc list-inside">
+              ${d.diagnostics.map(diag => `<li>${diag}</li>`).join('')}
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-sm font-extrabold uppercase tracking-wider text-slate-900 mb-2 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-600"></span> Standard Management & Prevention
+            </h4>
+            <ul class="space-y-1.5 text-sm text-slate-700 bg-white border border-slate-200 rounded-xl p-4 list-disc list-inside">
+              ${d.management.map(m => `<li>${m}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('detailModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    // Open News Briefing Modal
+    function openNewsModal(id) {
+      const n = newsData.find(item => item.id === id);
+      if (!n) return;
+
+      document.getElementById('modalBadge').textContent = n.tag;
+      document.getElementById('modalCode').textContent = n.date;
+
+      document.getElementById('modalContent').innerHTML = `
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-900 leading-snug mb-2">${n.title}</h2>
+          <p class="text-xs text-slate-400">Published ${n.date} • ${n.readTime}</p>
+        </div>
+        <div class="font-serif text-slate-700 text-sm sm:text-base leading-relaxed space-y-4 pt-4 border-t border-slate-100">
+          ${n.fullText}
+        </div>
+      `;
+
+      document.getElementById('detailModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+      document.getElementById('detailModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Toggle Reader Mode (Patient vs Clinical)
+    function setReaderMode(mode) {
+      currentReaderMode = mode;
+      const pBtn = document.getElementById('modePatientBtn');
+      const cBtn = document.getElementById('modeClinicalBtn');
+
+      if (mode === 'patient') {
+        pBtn.className = 'px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-sm transition';
+        cBtn.className = 'px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition';
+      } else {
+        cBtn.className = 'px-3 py-1.5 rounded-md bg-clinical-600 text-white shadow-sm transition';
+        pBtn.className = 'px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition';
+      }
+      renderDiseases(document.getElementById('globalSearchInput').value);
+    }
+
+    // Filter Category
+    function filterCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        if (btn.dataset.cat === cat) {
+          btn.className = 'cat-btn active px-3.5 py-2 rounded-xl text-xs font-bold bg-clinical-600 text-white shadow-sm transition';
+        } else {
+          btn.className = 'cat-btn px-3.5 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-clinical-600 transition';
+        }
+      });
+      renderDiseases(document.getElementById('globalSearchInput').value);
+    }
+
+    function filterNews(tag) {
+      renderNews(tag);
+    }
+
+    function quickFilter(term) {
+      const input = document.getElementById('globalSearchInput');
+      input.value = term;
+      filterCategory('All');
+      scrollToDirectory();
+    }
+
+    function resetDirectory() {
+      document.getElementById('globalSearchInput').value = '';
+      filterCategory('All');
+    }
+
+    function scrollToDirectory() {
+      document.getElementById('diseases-section').scrollIntoView({ behavior: 'smooth' });
+      renderDiseases(document.getElementById('globalSearchInput').value);
+    }
+
+    // Bedside BMI & MAP Calculator
+    function runClinicalCalc() {
+      const w = parseFloat(document.getElementById('calcWeight').value);
+      const hCm = parseFloat(document.getElementById('calcHeight').value);
+      const sbp = parseFloat(document.getElementById('calcSBP').value);
+      const dbp = parseFloat(document.getElementById('calcDBP').value);
+
+      const outBox = document.getElementById('calcOutput');
+      const bmiEl = document.getElementById('bmiResult');
+      const mapEl = document.getElementById('mapResult');
+
+      outBox.classList.remove('hidden');
+
+      if (w > 0 && hCm > 0) {
+        const hM = hCm / 100;
+        const bmi = (w / (hM * hM)).toFixed(1);
+        let status = 'Normal';
+        if (bmi < 18.5) status = 'Underweight';
+        else if (bmi >= 23 && bmi < 25) status = 'Overweight (Asian Cut-off)';
+        else if (bmi >= 25) status = 'Obese';
+        bmiEl.textContent = `${bmi} kg/m² (${status})`;
+      } else {
+        bmiEl.textContent = 'Enter weight & height';
+      }
+
+      if (sbp > 0 && dbp > 0) {
+        const map = Math.round(dbp + (sbp - dbp) / 3);
+        const perfStatus = map >= 65 ? 'Adequate Organ Perfusion (≥65)' : 'Low Perfusion Alert (<65)';
+        mapEl.textContent = `${map} mmHg — ${perfStatus}`;
+      } else {
+        mapEl.textContent = 'Enter SBP & DBP';
+      }
+    }
+
+    // Initialize Event Listeners
+    document.getElementById('globalSearchInput').addEventListener('input', (e) => {
+      renderDiseases(e.target.value);
+    });
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Initial Render
+    renderDiseases();
+    renderNews();
+  </script>
+</body>
+</html>
